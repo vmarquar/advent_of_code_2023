@@ -11,7 +11,7 @@ def read_input_from_file(filepath:str):
 ### MAIN
 if __name__ == "__main__":
     
-    input = read_input_from_file('dayN_input_test.txt')
+    input = read_input_from_file('./input/dayN_input_test.txt')
     
     
     

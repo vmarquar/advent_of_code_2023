@@ -67,7 +67,7 @@ def parse_game_from_str(line:str):
 
 ### MAIN
 if __name__ == "__main__":
-    input = read_input_from_file('day2_input.txt')
+    input = read_input_from_file('./input/day2_input.txt')
 
     # 1) parse input string to receive
     games = [parse_game_from_str(i) for i in input]    

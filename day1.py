@@ -135,7 +135,7 @@ if __name__ == "__main__":
     
     # ### PART 1
     # 1) Read input
-    input = read_input_from_file('day1_input.txt')
+    input = read_input_from_file('./input/day1_input.txt')
 
     # 2) Retrieve calibration value
     calibration_values = [find_calibration_value_from_str(input_str) for input_str in input]
