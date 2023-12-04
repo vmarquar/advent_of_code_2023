@@ -1,36 +1,5 @@
 """
-Started: 10:07
-
 --- Day 3: Gear Ratios ---
-You and the Elf eventually reach a gondola lift station; he says the gondola lift will take you up to the water source, but this is as far as he can bring you. You go inside.
-
-It doesn't take long to find the gondolas, but there seems to be a problem: they're not moving.
-
-"Aaah!"
-
-You turn around to see a slightly-greasy Elf with a wrench and a look of surprise. "Sorry, I wasn't expecting anyone! The gondola lift isn't working right now; it'll still be a while before I can fix it." You offer to help.
-
-The engineer explains that an engine part seems to be missing from the engine, but nobody can figure out which one. If you can add up all the part numbers in the engine schematic, it should be easy to work out which part is missing.
-
-The engine schematic (your puzzle input) consists of a visual representation of the engine. There are lots of numbers and symbols you don't really understand, but apparently any number adjacent to a symbol, even diagonally, is a "part number" and should be included in your sum. (Periods (.) do not count as a symbol.)
-
-Here is an example engine schematic:
-
-467..114..
-...*......
-..35..633.
-......#...
-617*......
-.....+.58.
-..592.....
-......755.
-...$.*....
-.664.598..
-In this schematic, two numbers are not part numbers because they are not adjacent to a symbol: 114 (top right) and 58 (middle right). Every other number is adjacent to a symbol and so is a part number; their sum is 4361.
-
-Of course, the actual engine schematic is much larger. What is the sum of all of the part numbers in the engine schematic?
-
-To begin, get your puzzle input.
 """
 ### IMPORTS AND GLOBAL CONSTANTS
 import re
@@ -90,19 +59,23 @@ def find_engine_parts_and_calc_sum(matrix,lines):
 
 ## PART 2 FUNCTIONS
 
-def search_left_right_to_get_complete_word(x,y, matrix):
+def search_left_right_to_get_complete_number(x,y, matrix):
     # check both sides until no digits are found
     left_x = x
-    while(matrix[y][left_x-1].isdigit()):
+    line = matrix[y]
+    # scan left side until no more digits are found
+    while((-1 < (x-1)) and matrix[y][left_x-1].isdigit()):
         left_x -= 1
-
+    # scan right side until no more digits are found
     right_x = x
-    while(matrix[y][right_x+1].isdigit()):
+    while((len(line)>(right_x+1)) and matrix[y][right_x+1].isdigit()):
         right_x += 1
 
-    word = ''.join(matrix[y][left_x:right_x+1])
-    print(word)
-    return(left_x,right_x)
+    number = int(''.join(matrix[y][left_x:right_x+1]))
+    
+    left_coords = left_x, y
+    right_coords = right_x, y
+    return(number, left_coords, right_coords)
 
 
 def find_stars(line:str):
@@ -110,11 +83,7 @@ def find_stars(line:str):
     return(starts_and_ends)
 
 def find_stars_and_calc_sum(matrix,lines):
-
-    all_numbers = []
-    for y_index, line in enumerate(lines):
-        all_numbers.append(find_numbers(line=line))
-
+    all_gear_ratios = []
     for y_index, line in enumerate(lines):
         stars = find_stars(line=line)
 
@@ -122,40 +91,35 @@ def find_stars_and_calc_sum(matrix,lines):
             neighbours = calc_neighbours(start, y_index, max_x=len(line)-1, max_y=len(lines)-1)
             
             gears = []
-            gears_ny = []
             for n_x,n_y in neighbours:
                 char = matrix[n_y][n_x]
-                print(f"Star * with neighbour {char} at ({n_x},{n_y})")
-                if(char.isdigit() and n_y not in gears_ny):
-                    gear = char, n_x, n_y
+                if(char.isdigit()):
+                    gear_number, left_coords, right_coords = search_left_right_to_get_complete_number(n_x,n_y, matrix)
+                    gear = gear_number, left_coords, right_coords
                     gears.append(gear)
-                    gears_ny.append(n_y)
-                    search_left_right_to_get_complete_word(n_x,n_y, matrix)
             
-            print(gears)
+            # remove duplicates
+            gears = removeDuplicates(gears)
 
-                # if(is_marker_symbol(char)):
-                #     number = int(''.join(matrix[y_index][start:end+1]))
-                #     sum_of_engine_parts += number
-                #     #print(f"Number {number} is part of the motor. Marked by {char} at ({n_x},{n_y})")
-                #     break
+            # if exactly two different gears -> calculate ratio
+            if(len(gears)==2):
+                gear_ratio = gears[0][0] * gears[1][0] 
+                all_gear_ratios.append((gear_ratio, gears[0][0], gears[1][0], y_index))
 
+    sum_of_all_gear_ratios = sum([g[0] for g in all_gear_ratios])
+    return(sum_of_all_gear_ratios, all_gear_ratios)
 
 ### MAIN
 if __name__ == "__main__":
+    # READ INPUT
+    matrix, lines = read_input_from_file('./input/day03_input.txt')
     
     # PART 1
-    matrix, lines = read_input_from_file('./input/day03_input_test.txt')
-    
     start = pfc()
     engine_sum = find_engine_parts_and_calc_sum(matrix,lines)
     print(f"PART 1: The engine sum is '{engine_sum}' ({pfc() - start:.4f}s).")
 
     # PART 2
-    # 1) find all starts
-    # 2) calc neighbours of all stars
-    # 3) check if exactly two neighbors are numbers/digits
-    # 4) return the two numbers (the two gears)
-    # 5) multiply the two numbers to get the gear_ratio
-    # 6) sum up all gear_ratio numbers to get the result
-    find_stars_and_calc_sum(matrix, lines)
+    start = pfc()
+    gear_ratio_sum, all_data = find_stars_and_calc_sum(matrix, lines)
+    print(f"PART 1: The gear_ratio sum is '{gear_ratio_sum}' ({pfc() - start:.4f}s).")
