@@ -44,7 +44,6 @@ def get_secord_order_rank(hand:str) -> dict[int]:
             "second_order_rank_fourth_card_rank":fourth_card_rank,
             "second_order_rank_fifth_card_rank":fifth_card_rank})
 
-    
 def get_type_of_hand(hand:dict[str | int]) -> dict[str | int]:
     counts = {}
     for c in hand['hand']:
@@ -98,7 +97,6 @@ def get_type_of_hand(hand:dict[str | int]) -> dict[str | int]:
             "card2": card2,
             "bid": hand['bid'],
             "hand": hand['hand']}, **additional_ranks})
-
 
 def order_typed_hands(typed_hands:list[dict[str | int]]) -> list[dict[str | int]]:
     unique_hand_type_ranks = sorted(set([h['hand_type_rank'] for h in typed_hands])) # get full dict of unique hand_types
